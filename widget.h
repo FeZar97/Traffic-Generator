@@ -11,6 +11,7 @@
 #include <QStandardItemModel>
 #include <QDateTime>
 #include <QSettings>
+#include <QMessageBox>
 #include <QDebug>
 
 const static QDir::Filters usingFilters = QDir::Files | QDir::NoSymLinks;
@@ -19,12 +20,11 @@ class TrafficGenerator : public QObject {
 
     Q_OBJECT
 
-    QWidget* m_parent;
-
     bool m_workStatus{false};
 
     QFileInfoList m_sourceFiles;
-    QString m_destinationDir{QDir::tempPath()};
+    QString m_destinationDir;
+    QString m_templateDir;
     int m_generateInterval{3};
     int m_filesPerInterval{1};
     double m_totalVolInBytes{0};
@@ -36,7 +36,7 @@ class TrafficGenerator : public QObject {
     QDateTime m_endTime;
 
 public:
-    TrafficGenerator(QWidget *parent = nullptr);
+    TrafficGenerator();
 
     void setWorkStatus(bool workStatus);
     bool getWorkStatus() const;
@@ -46,6 +46,9 @@ public:
 
     QString destinationDir() const;
     void setDestinationDir(const QString& destinationDir);
+
+    QString getTemplateDir() const;
+    void setTemplateDir(const QString& templateDir);
 
     int generateInterval() const;
     void setGenerateInterval(int generateInterval);
@@ -60,14 +63,19 @@ public:
     int globalCnt() const;
 
     qint64 getWorkTimeInSecs();
+    QDateTime getStartTime() const;
+    QDateTime getEndTime() const;
 
 // core
+    void start();
     void generate();
+    void stop();
 
 signals:
     void updateProgressBar(int newVal);
-    void timerStateChange();
+    void executeError(int code);
     void updateUi();
+    void setTemplateDir();
 };
 
 QT_BEGIN_NAMESPACE
@@ -84,12 +92,14 @@ public:
 
     void updateUi();
     void setGenerationInterval(int secs);
-    void genTimerStateChange();
+    void executeError(int code);
 
 private:
     Ui::Widget *ui;
     QSettings settings;
     TrafficGenerator trfGen;
+    QDateTime m_startDateTime;
+    QDateTime m_endDateTime;
     QThread trafficThread;
     QStandardItemModel m_model;
     QTimer m_updateTimer;

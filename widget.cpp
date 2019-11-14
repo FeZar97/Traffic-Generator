@@ -9,9 +9,7 @@ bool TrafficGenerator::getWorkStatus() const {
     return m_workStatus;
 }
 
-TrafficGenerator::TrafficGenerator(QWidget *parent) {
-    m_parent = parent;
-}
+TrafficGenerator::TrafficGenerator() {}
 
 void TrafficGenerator::addFilesAsSource(QStringList fileNames) {
     foreach(QString fileName, fileNames) {
@@ -19,6 +17,8 @@ void TrafficGenerator::addFilesAsSource(QStringList fileNames) {
             m_sourceFiles << QFileInfo(fileName);
         }
     }
+    if(fileNames.size())
+        emit setTemplateDir(QFileInfo(fileNames.last()).dir().absolutePath());
 }
 
 QFileInfoList* TrafficGenerator::sourceFiles() {
@@ -49,6 +49,14 @@ void TrafficGenerator::setDestinationDir(const QString& destinationDir) {
     m_destinationDir = destinationDir;
 }
 
+QString TrafficGenerator::getTemplateDir() const {
+    return m_templateDir;
+}
+
+void TrafficGenerator::setTemplateDir(const QString& templateDir) {
+    m_templateDir = templateDir;
+}
+
 double TrafficGenerator::currentSpeedInBytes() const {
     return m_currentSpeedInBytes;
 }
@@ -63,19 +71,16 @@ double TrafficGenerator::totalVolInBytes() const {
 
 void TrafficGenerator::setWorkStatus(bool workStatus) {
 
-    if(!m_workStatus && workStatus && m_sourceFiles.size()) {
+    if(!m_workStatus && workStatus) {
         m_globalCnt = 0;
         m_startTime = QDateTime::currentDateTime();
         m_workStatus = true;
-        emit timerStateChange();
     }
 
     if(m_workStatus && !workStatus) {
         m_endTime = QDateTime::currentDateTime();
         m_workStatus = false;
-        emit timerStateChange();
     }
-
 }
 
 qint64 TrafficGenerator::getWorkTimeInSecs() {
@@ -84,33 +89,53 @@ qint64 TrafficGenerator::getWorkTimeInSecs() {
     return m_startTime.secsTo(m_endTime);
 }
 
+QDateTime TrafficGenerator::getStartTime() const {
+    return m_startTime;
+}
+
+QDateTime TrafficGenerator::getEndTime() const {
+    return m_endTime;
+}
+
+void TrafficGenerator::start() {
+    m_globalCnt = 0;
+    m_startTime = QDateTime::currentDateTime();
+    m_workStatus = true;
+}
+
 void TrafficGenerator::generate() {
 
-    if(m_workStatus && m_sourceFiles.size()) {
-        double volumeInBytes{0};
+    if(m_workStatus) {
+        if(m_sourceFiles.size()) {
+            double volumeInBytes{0};
 
-        for(int i = 0; i < m_filesPerInterval; i++) {
-            int randIdx = int(QRandomGenerator::global()->bounded(m_sourceFiles.size()));
-            if(QFile::copy(m_sourceFiles.at(randIdx).absoluteFilePath(),
-                           QString("%1/%2_%3").arg(m_destinationDir).
-                                               arg(QString::number(m_globalCnt)).
-                                               arg(m_sourceFiles.at(randIdx).fileName()))) {
-                volumeInBytes += m_sourceFiles.at(randIdx).size();
-                m_globalCnt++;
-                emit updateProgressBar((i + 1) * 100 / m_filesPerInterval);
+            for(int i = 0; i < m_filesPerInterval; i++) {
+                int randIdx = int(QRandomGenerator::global()->bounded(m_sourceFiles.size()));
+                if(QFile::copy(m_sourceFiles.at(randIdx).absoluteFilePath(),
+                               QString("%1/%2_%3").arg(m_destinationDir).
+                                                   arg(QString::number(m_globalCnt)).
+                                                   arg(m_sourceFiles.at(randIdx).fileName()))) {
+                    volumeInBytes += m_sourceFiles.at(randIdx).size();
+                    m_globalCnt++;
+                    emit updateProgressBar((i + 1) * 100 / m_filesPerInterval);
+                }
             }
+
+            m_currentSpeedInBytes = volumeInBytes / m_filesPerInterval;
+            m_totalVolInBytes += volumeInBytes;
+            m_averageSpeedInBytes = m_totalVolInBytes / getWorkTimeInSecs();
+        } else {
+            emit executeError(-1);
+            stop();
         }
-
-        m_currentSpeedInBytes = volumeInBytes / m_filesPerInterval;
-        m_totalVolInBytes += volumeInBytes;
-        m_averageSpeedInBytes = m_totalVolInBytes / getWorkTimeInSecs();
-
         emit updateUi();
-    } else {
-        if(!m_sourceFiles.size()) {
-            qDebug() << "empty source list!";
-        }
     }
+}
+
+void TrafficGenerator::stop() {
+    m_endTime = QDateTime::currentDateTime();
+    m_workStatus = false;
+    emit updateUi();
 }
 
 // -----------------------------------------------------------------------------------------
@@ -133,13 +158,14 @@ Widget::Widget(QWidget *parent): QWidget(parent), ui(new Ui::Widget), settings("
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableView->setSelectionMode(QAbstractItemView::NoSelection);
 
-    connect(&trfGen, &TrafficGenerator::updateProgressBar, this->ui->generationProgressBar, &QProgressBar::setValue);
-    connect(&trfGen, &TrafficGenerator::updateUi, this, &Widget::updateUi);
-    connect(&trfGen, &TrafficGenerator::timerStateChange, this, &Widget::genTimerStateChange);
+    connect(&trfGen, &TrafficGenerator::updateProgressBar,  this->ui->generationProgressBar, &QProgressBar::setValue);
+    connect(&trfGen, &TrafficGenerator::updateUi,           this,                            &Widget::updateUi);
+    connect(&trfGen, &TrafficGenerator::executeError,       this,                            &Widget::executeError);
 
     restoreGeometry(settings.value("geometry").toByteArray());
     setGenerationInterval(settings.value("generateInterval", 3).toInt());
     trfGen.setDestinationDir(settings.value("destinationDir", QDir::tempPath()).toString());
+    trfGen.setTemplateDir(settings.value("templateDir", QDir::tempPath()).toString());
     trfGen.setFilesPerInterval(settings.value("filesPerInterval", 5).toInt());
     ui->currentSpeedUnitCB->setCurrentIndex(settings.value("currentSpeedUnitIdx", 5).toInt());
     ui->averageSpeedUnitCB->setCurrentIndex(settings.value("averageSpeedUnitIdx", 5).toInt());
@@ -156,6 +182,7 @@ Widget::~Widget() {
 
     settings.setValue("generateInterval",    trfGen.generateInterval());
     settings.setValue("destinationDir",      trfGen.destinationDir());
+    settings.setValue("templateDir",         trfGen.getTemplateDir());
     settings.setValue("filesPerInterval",    trfGen.filesPerInterval());
     settings.setValue("currentSpeedUnitIdx", ui->currentSpeedUnitCB->currentIndex());
     settings.setValue("averageSpeedUnitIdx", ui->averageSpeedUnitCB->currentIndex());
@@ -179,7 +206,11 @@ void Widget::updateUi() {
     ui->generationFileNbSB->setValue(trfGen.filesPerInterval());
     ui->generationIntervalSB->setValue(trfGen.generateInterval());
     ui->generationProgressInfoLabel->setText(QString::number(trfGen.globalCnt()));
-    ui->workTimeInfoLabel->setText(QTime(0, 0, 0, 0).addSecs(int(trfGen.getWorkTimeInSecs())).toString("hh:mm:ss"));
+
+    ui->workTimeInfoLabel->setText(
+                    QString("%1 дней ").arg(QDate(m_startDateTime.date()).daysTo(m_endDateTime.date())) +
+                    QTime(0,0,0,0).addSecs(QTime(m_startDateTime.time()).secsTo(m_endDateTime.time())).toString("hh ч. mm мин. ss сек."));
+
     ui->totalVolumeInfoLabel->setText(QString::number(convert(trfGen.totalVolInBytes(),
                                                               ui->totalVolumeUnitCB->currentIndex())));
 
@@ -194,11 +225,14 @@ void Widget::setGenerationInterval(int secs) {
     trfGen.setGenerateInterval(secs);
 }
 
-void Widget::genTimerStateChange() {
-    if(m_generateTimer.isActive()) {
-        m_generateTimer.stop();
-    } else {
-        m_generateTimer.start();
+void Widget::executeError(int code) {
+    on_stopButton_clicked();
+    switch(code) {
+        case -1:
+            QMessageBox::critical(nullptr, "Ошибка", "Не выбраны файлы-шаблоны для генерации!", QMessageBox::Ok, QMessageBox::Ok);
+            break;
+        default:
+            break;
     }
 }
 
@@ -218,11 +252,14 @@ void Widget::on_destinationDirButton_clicked() {
 }
 
 void Widget::on_startButton_clicked() {
-    trfGen.setWorkStatus(true);
+    trfGen.start();
+    trfGen.generate();
+    m_generateTimer.start();
 }
 
 void Widget::on_stopButton_clicked() {
-    trfGen.setWorkStatus(false);
+    trfGen.stop();
+    m_generateTimer.stop();
 }
 
 void Widget::on_sourceFilesClearButton_clicked() {
@@ -240,7 +277,7 @@ void Widget::on_currentSpeedUnitCB_currentIndexChanged(int index) {
 void Widget::on_sourceFilesAddButton_clicked() {
     trfGen.addFilesAsSource(QFileDialog::getOpenFileNames(this,
                                                           "Выбор файлов-образцов",
-                                                          "/home",
+                                                          trfGen.getTemplateDir(),
                                                           "*.*"));
     updateUi();
 }
