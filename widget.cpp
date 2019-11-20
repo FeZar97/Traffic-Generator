@@ -5,6 +5,14 @@ int TrafficGenerator::globalCnt() const {
     return m_globalCnt;
 }
 
+void TrafficGenerator::flushStatistic() {
+    m_totalVolInBytes = 0.;
+    m_averageSpeedInBytes = 0;
+    m_globalCnt = 0;
+    m_startTime = QDateTime::currentDateTime();
+    m_endTime = QDateTime::currentDateTime();
+}
+
 bool TrafficGenerator::getWorkStatus() const {
     return m_workStatus;
 }
@@ -98,9 +106,9 @@ QDateTime TrafficGenerator::getEndTime() const {
 }
 
 void TrafficGenerator::start() {
-    m_globalCnt = 0;
-    m_startTime = QDateTime::currentDateTime();
+    flushStatistic();
     m_workStatus = true;
+    generate();
 }
 
 void TrafficGenerator::generate() {
@@ -195,6 +203,8 @@ Widget::~Widget() {
 }
 
 void Widget::updateUi() {
+    m_endDateTime = trfGen.getWorkStatus() ? QDateTime::currentDateTime() : m_endDateTime;
+
     ui->startButton->setEnabled(!trfGen.getWorkStatus());
     ui->stopButton->setEnabled(trfGen.getWorkStatus());
 
@@ -253,7 +263,7 @@ void Widget::on_destinationDirButton_clicked() {
 
 void Widget::on_startButton_clicked() {
     trfGen.start();
-    trfGen.generate();
+    m_startDateTime = QDateTime::currentDateTime();
     m_generateTimer.start();
 }
 

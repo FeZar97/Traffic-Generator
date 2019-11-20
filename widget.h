@@ -61,6 +61,7 @@ public:
     double averageSpeedInBytes() const;
     double totalVolInBytes() const;
     int globalCnt() const;
+    void flushStatistic();
 
     qint64 getWorkTimeInSecs();
     QDateTime getStartTime() const;
