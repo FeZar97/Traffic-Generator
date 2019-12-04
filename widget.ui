@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>361</width>
-    <height>461</height>
+    <width>1162</width>
+    <height>661</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,8 +22,8 @@
     <rect>
      <x>10</x>
      <y>0</y>
-     <width>346</width>
-     <height>451</height>
+     <width>581</width>
+     <height>481</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="mainLayout">
@@ -65,6 +65,52 @@
       </item>
       <item>
        <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="sourceFilesLabel">
+        <property name="text">
+         <string>Файлы-шаблоны:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sourceFilesAddButton">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="img.qrc">
+          <normaloff>:/img/ADD.jpg</normaloff>:/img/ADD.jpg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sourceFilesClearButton">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="img.qrc">
+          <normaloff>:/img/CLEAR.png</normaloff>:/img/CLEAR.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -166,207 +212,6 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QLabel" name="currentSpeedLabel">
-        <property name="text">
-         <string>Скорость текущая:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="currentSpeedInfoLabel">
-        <property name="text">
-         <string>-</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="currentSpeedUnitCB">
-        <item>
-         <property name="text">
-          <string>бит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>байт/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Кбит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>КБайт/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Мбит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>МБайт/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Гбит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>ГБайт/с</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>, средняя:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="averageSpeedInfoLabel">
-        <property name="text">
-         <string>-</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="averageSpeedUnitCB">
-        <item>
-         <property name="text">
-          <string>бит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>байт/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Кбит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>КБайт/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Мбит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>МБайт/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Гбит/с</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>ГБайт/с</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLabel" name="sourceFilesLabel">
-        <property name="text">
-         <string>Файлы-шаблоны:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="sourceFilesAddButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="img.qrc">
-          <normaloff>:/img/ADD.jpg</normaloff>:/img/ADD.jpg</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="sourceFilesClearButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="img.qrc">
-          <normaloff>:/img/CLEAR.png</normaloff>:/img/CLEAR.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QTableView" name="tableView"/>
-    </item>
-    <item>
-     <widget class="QProgressBar" name="generationProgressBar">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>7</height>
-       </size>
-      </property>
-      <property name="value">
-       <number>0</number>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="textVisible">
-       <bool>false</bool>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_7">
       <item>
        <widget class="QLabel" name="generationProgressLabel">
@@ -461,6 +306,161 @@
        </spacer>
       </item>
      </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="currentSpeedLabel">
+        <property name="text">
+         <string>Скорость текущая:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="currentSpeedInfoLabel">
+        <property name="text">
+         <string>-</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="currentSpeedUnitCB">
+        <item>
+         <property name="text">
+          <string>бит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>байт/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Кбит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>КБайт/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Мбит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>МБайт/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Гбит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>ГБайт/с</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="averageSpeedLabel">
+        <property name="text">
+         <string>, средняя:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="averageSpeedInfoLabel">
+        <property name="text">
+         <string>-</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="averageSpeedUnitCB">
+        <item>
+         <property name="text">
+          <string>бит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>байт/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Кбит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>КБайт/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Мбит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>МБайт/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Гбит/с</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>ГБайт/с</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QProgressBar" name="generationProgressBar">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>7</height>
+       </size>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="textVisible">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableView" name="tableView"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_8">

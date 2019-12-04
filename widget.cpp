@@ -151,6 +151,9 @@ void TrafficGenerator::stop() {
 Widget::Widget(QWidget *parent): QWidget(parent), ui(new Ui::Widget), settings("FeZar97", "TrafficGenerator"){
     ui->setupUi(this);
     setLayout(ui->mainLayout);
+    setWindowTitle(QString("Traffic Generator ") + VERSION);
+
+    //ui->tabWidget->setLayout(ui->mainGenLayout);
 
     m_updateTimer.setInterval(1000);
     connect(&m_updateTimer, &QTimer::timeout, this, &Widget::updateUi);
@@ -217,9 +220,20 @@ void Widget::updateUi() {
     ui->generationIntervalSB->setValue(trfGen.generateInterval());
     ui->generationProgressInfoLabel->setText(QString::number(trfGen.globalCnt()));
 
-    ui->workTimeInfoLabel->setText(
-                    QString("%1 дней ").arg(QDate(m_startDateTime.date()).daysTo(m_endDateTime.date())) +
-                    QTime(0,0,0,0).addSecs(QTime(m_startDateTime.time()).secsTo(m_endDateTime.time())).toString("hh ч. mm мин. ss сек."));
+    qint64 days;
+    if( QDate(trfGen.getStartTime().date()).daysTo(trfGen.getEndTime().date()) == 0 ) {
+        days = 0;
+    } else {
+        if(trfGen.getEndTime().time() >= trfGen.getStartTime().time()) {
+            days = QDate(trfGen.getStartTime().date()).daysTo(trfGen.getEndTime().date());
+        } else {
+            days = QDate(trfGen.getStartTime().date()).daysTo(trfGen.getEndTime().date()) - 1;
+        }
+    }
+
+    ui->workTimeInfoLabel->setText(QString("%1 дней ").arg( days ) +
+                                   QTime(0,0,0,0).addSecs(QTime(trfGen.getStartTime().time()).secsTo(trfGen.getEndTime().time())).toString("hh ч. mm мин. ss сек."));
+
 
     ui->totalVolumeInfoLabel->setText(QString::number(convert(trfGen.totalVolInBytes(),
                                                               ui->totalVolumeUnitCB->currentIndex())));

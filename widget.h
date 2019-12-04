@@ -12,7 +12,10 @@
 #include <QDateTime>
 #include <QSettings>
 #include <QMessageBox>
+
 #include <QDebug>
+
+#define     VERSION               "v1.1.26:5"
 
 const static QDir::Filters usingFilters = QDir::Files | QDir::NoSymLinks;
 
