@@ -5,10 +5,15 @@ int TrafficGenerator::globalCnt() const {
     return m_globalCnt;
 }
 
+int TrafficGenerator::getVirusNb() const {
+    return m_virusNb;
+}
+
 void TrafficGenerator::flushStatistic() {
     m_totalVolInBytes = 0.;
     m_averageSpeedInBytes = 0;
     m_globalCnt = 0;
+    m_virusNb = 0;
     m_startTime = QDateTime::currentDateTime();
     m_endTime = QDateTime::currentDateTime();
 }
@@ -81,6 +86,7 @@ void TrafficGenerator::setWorkStatus(bool workStatus) {
 
     if(!m_workStatus && workStatus) {
         m_globalCnt = 0;
+        m_virusNb = 0;
         m_startTime = QDateTime::currentDateTime();
         m_workStatus = true;
     }
@@ -125,6 +131,12 @@ void TrafficGenerator::generate() {
                                                    arg(m_sourceFiles.at(randIdx).fileName()))) {
                     volumeInBytes += m_sourceFiles.at(randIdx).size();
                     m_globalCnt++;
+
+                    if(m_sourceFiles.at(randIdx).fileName() == "eicar.txt" || m_sourceFiles.at(randIdx).fileName() == "EICAR.zip") {
+                        m_virusNb++;
+                    }
+
+
                     emit updateProgressBar((i + 1) * 100 / m_filesPerInterval);
                 }
             }
@@ -215,6 +227,8 @@ void Widget::updateUi() {
                                                                ui->currentSpeedUnitCB->currentIndex())));
     ui->averageSpeedInfoLabel->setText(QString::number(convert(trfGen.averageSpeedInBytes(),
                                                                ui->averageSpeedUnitCB->currentIndex())));
+
+    ui->virusNbInfoLabel->setText(QString::number(trfGen.getVirusNb()));
     ui->destinationDirLE->setText(trfGen.destinationDir());
     ui->generationFileNbSB->setValue(trfGen.filesPerInterval());
     ui->generationIntervalSB->setValue(trfGen.generateInterval());

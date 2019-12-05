@@ -15,7 +15,7 @@
 
 #include <QDebug>
 
-#define     VERSION               "v1.1.26:5"
+#define     VERSION               "v1.2.05:1"
 
 const static QDir::Filters usingFilters = QDir::Files | QDir::NoSymLinks;
 
@@ -34,6 +34,7 @@ class TrafficGenerator : public QObject {
     double m_currentSpeedInBytes{0};
     double m_averageSpeedInBytes{0};
     int m_globalCnt{0};
+    int m_virusNb{0};
 
     QDateTime m_startTime;
     QDateTime m_endTime;
@@ -64,6 +65,7 @@ public:
     double averageSpeedInBytes() const;
     double totalVolInBytes() const;
     int globalCnt() const;
+    int getVirusNb() const;
     void flushStatistic();
 
     qint64 getWorkTimeInSecs();
