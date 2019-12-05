@@ -15,7 +15,7 @@
 
 #include <QDebug>
 
-#define     VERSION               "v1.2.05:1"
+#define     VERSION               "v1.2.05:2"
 
 const static QDir::Filters usingFilters = QDir::Files | QDir::NoSymLinks;
 
