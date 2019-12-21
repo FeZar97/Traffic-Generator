@@ -125,20 +125,20 @@ void TrafficGenerator::generate() {
 
             for(int i = 0; i < m_filesPerInterval; i++) {
                 int randIdx = int(QRandomGenerator::global()->bounded(m_sourceFiles.size()));
-                if(QFile::copy(m_sourceFiles.at(randIdx).absoluteFilePath(),
+                QFile::copy(m_sourceFiles.at(randIdx).absoluteFilePath(),
                                QString("%1/%2_%3").arg(m_destinationDir).
                                                    arg(QString::number(m_globalCnt)).
-                                                   arg(m_sourceFiles.at(randIdx).fileName()))) {
-                    volumeInBytes += m_sourceFiles.at(randIdx).size();
-                    m_globalCnt++;
+                                                   arg(m_sourceFiles.at(randIdx).fileName()));
+                volumeInBytes += m_sourceFiles.at(randIdx).size();
+                m_globalCnt++;
 
-                    if(m_sourceFiles.at(randIdx).fileName() == "eicar.txt" || m_sourceFiles.at(randIdx).fileName() == "EICAR.zip") {
-                        m_virusNb++;
-                    }
-
-
-                    emit updateProgressBar((i + 1) * 100 / m_filesPerInterval);
+                if(m_sourceFiles.at(randIdx).fileName() == "eicar.txt" ||
+                   m_sourceFiles.at(randIdx).fileName() == "EICAR.zip") {
+                    m_virusNb++;
                 }
+
+
+                emit updateProgressBar((i + 1) * 100 / m_filesPerInterval);
             }
 
             m_currentSpeedInBytes = volumeInBytes / m_filesPerInterval;
