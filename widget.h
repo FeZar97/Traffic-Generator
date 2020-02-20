@@ -15,10 +15,10 @@
 
 #include <QDebug>
 
-#define     VERSION               "v1.2.25:3"
+#define     VERSION               "v1.2.21"
 
 #define     DEFAULT_GENERATE_INTERVAL           3
-#define     DEFAULT_FILES_NB_PER_INTERVAL       1
+#define     DEFAULT_FILES_NB_PER_INTERVAL       5
 #define     DEFAULT_INFECTED_FILE_PROBABILITY   0.2
 #define     DEFAULT_UNIT                        5
 
@@ -46,6 +46,7 @@ class TrafficGenerator : public QObject {
     int m_generateInterval{DEFAULT_GENERATE_INTERVAL};
     int m_filesPerInterval{DEFAULT_FILES_NB_PER_INTERVAL};
 
+    double m_volumePerPeriodInBytes{NULL};
     double m_totalVolInBytes{NULL};
     double m_currentSpeedInBytes{NULL};
     double m_averageSpeedInBytes{NULL};

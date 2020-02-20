@@ -139,7 +139,7 @@ void TrafficGenerator::flushStatistic() {
 qint64 TrafficGenerator::getWorkTimeInSecs() {
     if(m_workStatus)
         m_endTime = QDateTime::currentDateTime();
-    return m_startTime.secsTo(m_endTime);
+    return m_startTime.secsTo(m_endTime) + 1;
 }
 
 QDateTime TrafficGenerator::getStartTime() const {
@@ -164,11 +164,16 @@ void TrafficGenerator::generate() {
             emit executeError(-1);
             stop();
         } else {
+            m_volumePerPeriodInBytes = 0;
+
             for(int i = 0; i < m_filesPerInterval; i++) {
                 generateFile(QRandomGenerator::global()->generateDouble() < m_infectedFileGenerateProbability ?
                                  m_infectedFiles : m_cleanFiles);
                 emit updateProgressBar((i + 1) * 100 / m_filesPerInterval);
             }
+            m_currentSpeedInBytes = m_volumePerPeriodInBytes / m_generateInterval;
+            m_totalVolInBytes += m_volumePerPeriodInBytes;
+            m_averageSpeedInBytes = m_totalVolInBytes / getWorkTimeInSecs();
             emit updateUi();
         }
     }
@@ -176,23 +181,18 @@ void TrafficGenerator::generate() {
 
 void TrafficGenerator::generateFile(QFileInfoList& sourceList) {
     if(sourceList.size()) {
-        double volumeInBytes{0};
 
         int randIdx = int(QRandomGenerator::global()->bounded(sourceList.size()));
         QFile::copy(sourceList.at(randIdx).absoluteFilePath(),
                        QString("%1/%2_%3").arg(m_destinationDir).
                                            arg(QString::number(m_globalCnt)).
                                            arg(sourceList.at(randIdx).fileName()));
-        volumeInBytes += sourceList.at(randIdx).size();
+        m_volumePerPeriodInBytes += sourceList.at(randIdx).size();
         m_globalCnt++;
 
         if(m_infectedFiles.contains(sourceList.at(randIdx))) {
             m_infectedFilesCnt++;
         }
-
-        m_currentSpeedInBytes = volumeInBytes / m_filesPerInterval;
-        m_totalVolInBytes += volumeInBytes;
-        m_averageSpeedInBytes = m_totalVolInBytes / getWorkTimeInSecs();
     }
 }
 
@@ -263,15 +263,16 @@ Widget::~Widget() {
 }
 
 void Widget::updateUi() {
+
     m_endDateTime = trfGen.getWorkStatus() ? QDateTime::currentDateTime() : m_endDateTime;
 
     ui->startButton->setEnabled(!trfGen.getWorkStatus());
     ui->stopButton->setEnabled(trfGen.getWorkStatus());
 
     ui->currentSpeedInfoLabel->setText(QString::number(convert(trfGen.getCurrentSpeedInBytes(),
-                                                               ui->currentSpeedUnitCB->currentIndex())));
+                                                               ui->currentSpeedUnitCB->currentIndex()), 'f', 2));
     ui->averageSpeedInfoLabel->setText(QString::number(convert(trfGen.getAverageSpeedInBytes(),
-                                                               ui->averageSpeedUnitCB->currentIndex())));
+                                                               ui->averageSpeedUnitCB->currentIndex()), 'f', 2));
 
     ui->virusNbInfoLabel->setText(QString::number(trfGen.getInfectedFilesNb()));
     ui->destinationDirLE->setText(trfGen.getDestinationDir());
@@ -280,19 +281,18 @@ void Widget::updateUi() {
     ui->generationProgressInfoLabel->setText(QString::number(trfGen.getGlobalCnt()));
 
     qint64 days;
-    if( QDate(trfGen.getStartTime().date()).daysTo(trfGen.getEndTime().date()) == 0 ) {
+    if( QDate(trfGen.getStartTime().date()).daysTo(m_endDateTime.date()) == 0 ) {
         days = 0;
     } else {
-        if(trfGen.getEndTime().time() >= trfGen.getStartTime().time()) {
-            days = QDate(trfGen.getStartTime().date()).daysTo(trfGen.getEndTime().date());
+        if(m_endDateTime.time() >= trfGen.getStartTime().time()) {
+            days = QDate(trfGen.getStartTime().date()).daysTo(m_endDateTime.date());
         } else {
-            days = QDate(trfGen.getStartTime().date()).daysTo(trfGen.getEndTime().date()) - 1;
+            days = QDate(trfGen.getStartTime().date()).daysTo(m_endDateTime.date()) - 1;
         }
     }
 
     ui->workTimeInfoLabel->setText(QString("%1 дней ").arg( days ) +
-                                   QTime(0,0,0,0).addSecs(QTime(trfGen.getStartTime().time()).secsTo(trfGen.getEndTime().time())).toString("hh ч. mm мин. ss сек."));
-
+                                   QTime(0,0,0,0).addSecs(QTime(trfGen.getStartTime().time()).secsTo(m_endDateTime.time())).toString("hh ч. mm мин. ss сек."));
 
     ui->totalVolumeInfoLabel->setText(QString::number(convert(trfGen.getTotalVolInBytes(),
                                                               ui->totalVolumeUnitCB->currentIndex())));
@@ -371,7 +371,7 @@ void Widget::on_stopButton_clicked() {
 
 void Widget::on_cleanFilesAddButton_clicked() {
     trfGen.addCleanFiles(QFileDialog::getOpenFileNames(this,
-                                                       "Выбор файлов-образцов",
+                                                       "Выбор чистых файлов-образцов",
                                                        trfGen.getCleanFilesDir(),
                                                        "*.*"));
     updateUi();
@@ -386,7 +386,7 @@ void Widget::on_cleanFilesClearButton_clicked() {
 
 void Widget::on_infectedFilesAddButton_clicked() {
     trfGen.addInfectedFiles(QFileDialog::getOpenFileNames(this,
-                                                          "Выбор файлов-образцов",
+                                                          "Выбор инфицированных файлов-образцов",
                                                           trfGen.getInfectedFilesDir(),
                                                           "*.*"));
     updateUi();
